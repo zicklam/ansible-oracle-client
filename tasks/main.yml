@@ -4,7 +4,6 @@
 #  - download_otn.yml
 #  - install-oracle-client.yml
 #  - 
-
 - name: Set dependant variables
   include_vars: "oracle.yml"
 
@@ -117,5 +116,3 @@
   file:
     path: "{{ oracle_installer }}/{{ oracle_client_installer }}"
     state: absent
-  
-
