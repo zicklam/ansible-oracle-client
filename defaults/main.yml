@@ -1,0 +1,33 @@
+---
+# hashed password for the oracle user: 
+# generate password: $ python -c 'import crypt; print crypt.crypt("oracle", "$1$1337$")'
+#  outcomment {{ oracle_pass }} if you don't want to set a password for linux user
+#
+oracle_user:      oracle12
+#oracle_pass:      $1$1337$2ypSovKxUU1UO5lrTEuJD1
+oracle_group:     oinstall
+oracle_group_id:  3003
+
+# installer properties for silent installation
+oracle_languages:    "en,de"
+oracle_installation: "Runtime"
+
+oracle_base:      /opt/app/oracle
+oracle_home:      "{{ oracle_base }}/product/12.2.0/client"
+oracle_inventory: "{{ oracle_base }}/oraInventory"
+
+# temporary path for installer files
+oracle_installer: /opt/oracle12
+
+# Comment this line to use the local package @/files/{{ oracle_client_installer_64}}
+# Download via oracle otn page requires authentication tokens
+#oracle_installer_uri: http://mirror/packages/oracle/AMD64/12c/12.2.0.1/Client/
+#oracle_installer_uri: http://download.oracle.com/otn/linux/oracle12c/122010/
+
+# official oracle installer source/archive:
+#  source: https://www.oracle.com/technetwork/database/enterprise-edition/downloads/index.html
+#  12cR2:  https://www.oracle.com/technetwork/database/enterprise-edition/downloads/oracle12c-linux-12201-3608234.html
+oracle_client_installer_64:        linuxx64_12201_client.zip
+oracle_client_installer_32:        linuxx86_12201_client.zip
+oracle_client_installer_64_chksum: 1635486023
+oracle_client_installer_32_chksum: 4008285988

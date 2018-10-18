@@ -1,0 +1,14 @@
+ANYSID =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(Host = server.fqdn.com)(Port = 1521))
+    (CONNECT_DATA = (SID = ANYSID))
+  )
+
+ANYSRVC =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(Host = server.fqdn.com)(Port = 1521))
+    (CONNECT_DATA = 
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = SERVICE.domain)
+    )
+  )

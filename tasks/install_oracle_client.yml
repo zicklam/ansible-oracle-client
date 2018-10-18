@@ -1,0 +1,53 @@
+---
+- name: Oracle Client | Check if installer already present
+  stat:
+    path: "{{ oracle_installer }}/client/install/.oui"
+  register: stat_installer
+
+- block:
+
+  - name: Oracle Client | Transfer Package to Host
+    copy:
+      src: "{{ oracle_client_installer }}"
+      dest: "{{ oracle_installer }}"
+      mode: 0640
+      owner: "{{ oracle_user }}"
+      group: "{{ oracle_group }}"
+      remote_src: no
+
+  #- name: Oracle Client | Install | Verify checksum
+  #  command: "cksum {{ oracle_installer }}/{{ oracle_client_installer }}"
+  #  register: chksum_installer
+  #  failed_when: "chksum_installer.stdout.find('{{ oracle_client_installer_chksum }}') != 0"
+
+  - name: Oracle Client | Unarchive
+    unarchive:
+      src: "{{ oracle_installer }}/{{ oracle_client_installer }}"
+      dest: "{{ oracle_installer }}"
+      remote_src: yes
+    become: true
+    become_user: "{{ oracle_user }}"
+
+  when:
+    - oracle_installer_uri is not defined
+    - stat_installer.stat.exists == false
+
+- block:
+
+  - name: Oracle Client | Download Installation Package to Host
+    unarchive:
+      src: "{{ oracle_installer_uri }}/{{ oracle_client_installer }}"
+      dest: "{{ oracle_installer }}"
+      remote_src: yes
+    become: true
+    become_user: "{{ oracle_user }}"
+
+  when:
+    - oracle_installer_uri is defined
+    - stat_installer.stat.exists == false
+
+# https://docs.oracle.com/cd/E26854_01/em.121/e37799/toc.htm
+- name: Oracle Client | Install | Using Oracle Universal Installer
+  command: "{{ oracle_installer }}/client/runInstaller -silent -responseFile {{ oracle_installer }}/client/response/client_install.rsp -ignoreSysPrereqs -ignorePrereq -waitforcompletion"
+  become: true
+  become_user: "{{ oracle_user }}"

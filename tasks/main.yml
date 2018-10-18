@@ -1,0 +1,121 @@
+---
+# tasks/main.yml
+#  subtasks:
+#  - download_otn.yml
+#  - install-oracle-client.yml
+#  - 
+
+- name: Set dependant variables
+  include_vars: "oracle.yml"
+
+- name: Oracle Client | Check if SQLplus is already present
+  stat:
+    path: "{{ oracle_home }}/bin/sqlplus"
+  register: stat_sqlplus
+
+- name: Oracle Client | Get Fact | Host Architecture
+  set_fact:
+    oracle_client_installer: "{{ oracle_client_installer_32 }}"
+    oracle_client_installer_chksum: "{{ oracle_client_installer_32_chksum }}"
+  when: ansible_userspace_bits == "32"
+
+- name: Oracle Client | Get Fact | Host Architecture
+  set_fact:
+    oracle_client_installer: "{{ oracle_client_installer_64 }}"
+    oracle_client_installer_chksum: "{{ oracle_client_installer_64_chksum }}"
+  when: ansible_userspace_bits == "64"
+
+# installation routine
+- block:
+
+  - name: Oracle Client | create group
+    group:
+      name: "{{ oracle_group }}"
+      gid:  "{{ oracle_group_id }}"
+      state: present
+
+  - name: Oracle Client | create user
+    user:
+      name:      "{{ oracle_user }}"
+      #uid:      "{{ oracle_user_id }}"
+      group:     "{{ oracle_group }}"
+      comment:   "Oracle Client"
+      #password:  "{{ oracle_pass }}"
+      createhome: yes
+      shell:      /bin/bash
+      state:      present
+
+  - name: Oracle Client | set password for user
+    user:
+      name:            "{{ oracle_user }}"
+      update_password: "{{ oracle_pass }}"
+    when: oracle_pass is defined
+
+  - name: Oracle Client | create installation path
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: "{{ oracle_user }}"
+      group: "{{ oracle_group }}"
+      mode:  "u=rwx,g=rwx,o="
+    with_items:
+      - "{{ oracle_installer }}"
+
+  - name: Oracle Client | create directories
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: "{{ oracle_user }}"
+      group: "{{ oracle_group }}"
+      mode:  "u=rwx,g=rwx,o=rx"
+    with_items:
+      - "{{ oracle_home }}"
+      - "{{ oracle_inventory }}"
+
+  - name: Oracle Client | install the dependencies
+    yum:
+      name: "{{ item }}"
+      state: installed
+    with_items:
+      #- "libXtst"
+      - "libstdc++-devel"
+      - "gcc"
+      - "gcc-c++"
+      - "ksh"
+      - "glibc-devel"
+      - "libaio-devel"
+
+  #- name: Oracle Client | Download installation package
+  #  include: download_oracle_client.yml
+
+  - name: Oracle Client | Install
+    include: install_oracle_client.yml
+
+  when: stat_sqlplus.stat.exists == false
+
+- name: Oracle Client | Check if tnsnames.ora is already present
+  stat:
+    path: "{{ oracle_home }}/network/admin/tnsnames.ora"
+  register: stat_tnsnames
+
+- name: Oracle Client | Install | Create tnsnames.ora as template
+  template:
+    src:   tnsnames.j2
+    dest:  "{{ oracle_home }}/network/admin/tnsnames.ora"
+    owner:  "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode:  "u+rw,g+r,o+r"
+  when: stat_tnsnames.stat.exists == false
+
+- name: Oracle Client | Install | Create global environment file
+  template:
+    src:   environments.j2
+    dest:  "/etc/profile.d/env_ansible-oracle-client.sh"
+    mode:  "u+rw,g+r,o+r"
+
+- name: Oracle Client | Cleanup installation files
+  file:
+    path: "{{ oracle_installer }}/{{ oracle_client_installer }}"
+    state: absent
+  
+
