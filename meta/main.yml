@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  role_name: oracle-client
+  author: zicklam
+  description: Ansible Playbook for Oracle Runtime Client (v12.2.0) installation
+  license: MIT
+  min_ansible_version: 2.5
+  platforms:
+  - name: EL
+    versions:
+    - 7
+  categories:
+  - database
+  - database:sql
+dependencies: []
