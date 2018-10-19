@@ -1,11 +1,5 @@
 ---
 # tasks/main.yml
-#  subtasks:
-#  - download_otn.yml
-#  - install-oracle-client.yml
-#  - 
-- name: Set dependant variables
-  include_vars: "oracle.yml"
 
 - name: Oracle Client | Check if SQLplus is already present
   stat:
@@ -36,18 +30,17 @@
   - name: Oracle Client | create user
     user:
       name:      "{{ oracle_user }}"
-      #uid:      "{{ oracle_user_id }}"
       group:     "{{ oracle_group }}"
       comment:   "Oracle Client"
-      #password:  "{{ oracle_pass }}"
-      createhome: yes
-      shell:      /bin/bash
+      createhome: no
+      shell:      /bin/nologin
       state:      present
 
   - name: Oracle Client | set password for user
     user:
       name:            "{{ oracle_user }}"
       update_password: "{{ oracle_pass }}"
+      shell:           /bin/bash
     when: oracle_pass is defined
 
   - name: Oracle Client | create installation path
@@ -76,7 +69,6 @@
       name: "{{ item }}"
       state: installed
     with_items:
-      #- "libXtst"
       - "libstdc++-devel"
       - "gcc"
       - "gcc-c++"
@@ -84,11 +76,54 @@
       - "glibc-devel"
       - "libaio-devel"
 
-  #- name: Oracle Client | Download installation package
-  #  include: download_oracle_client.yml
-
-  - name: Oracle Client | Install
-    include: install_oracle_client.yml
+  - name: Oracle Client | Check if installer already present
+    stat:
+      path: "{{ oracle_installer }}/client/install/.oui"
+    register: stat_installer
+  
+  - block:
+  
+    - name: Oracle Client | Transfer Package to Host
+      copy:
+        src: "{{ oracle_client_installer }}"
+        dest: "{{ oracle_installer }}"
+        mode: 0640
+        owner: "{{ oracle_user }}"
+        group: "{{ oracle_group }}"
+        remote_src: no
+  
+    - name: Oracle Client | Unarchive
+      unarchive:
+        src: "{{ oracle_installer }}/{{ oracle_client_installer }}"
+        dest: "{{ oracle_installer }}"
+        remote_src: yes
+      become: true
+      become_user: "{{ oracle_user }}"
+  
+    when:
+      - oracle_installer_uri is not defined
+      - stat_installer.stat.exists == false
+  
+  - block:
+  
+    - name: Oracle Client | Download Installation Package to Host
+      unarchive:
+        src: "{{ oracle_installer_uri }}/{{ oracle_client_installer }}"
+        dest: "{{ oracle_installer }}"
+        remote_src: yes
+      become: true
+      become_user: "{{ oracle_user }}"
+  
+    when:
+      - oracle_installer_uri is defined
+      - stat_installer.stat.exists == false
+  
+  # https://docs.oracle.com/cd/E26854_01/em.121/e37799/toc.htm
+  - name: Oracle Client | Install | Using Oracle Universal Installer
+    command: "{{ oracle_installer }}/client/runInstaller -silent -responseFile {{ oracle_installer }}/client/response/client_install.rsp -ignoreSysPrereqs -ignorePrereq -waitforcompletion"
+    become: true
+    become_user: "{{ oracle_user }}"
+    environment: "{{ oracle_installer_env }}"
 
   when: stat_sqlplus.stat.exists == false
 
@@ -108,7 +143,7 @@
 
 - name: Oracle Client | Install | Create global environment file
   template:
-    src:   environments.j2
+    src:   environments.sh.j2
     dest:  "/etc/profile.d/env_ansible-oracle-client.sh"
     mode:  "u+rw,g+r,o+r"
 

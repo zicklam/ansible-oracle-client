@@ -1,16 +1,21 @@
 ---
 galaxy_info:
-  role_name: oracle-client
+  role_name: oracle_client
   author: zicklam
   description: Ansible Playbook for Oracle Runtime Client (v12.2.0) installation
   license: MIT
   min_ansible_version: 2.5
   platforms:
+  - name: Centos
+    - 6
+    - 7
   - name: EL
     versions:
+    - 6
     - 7
   galaxy_tags:
   - database
   - oracle
   - client
+  - sqlplus
 dependencies: []

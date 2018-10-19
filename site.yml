@@ -1,23 +1,17 @@
 ---
-# -------------------------------------------------------------------
 # Ansible Playbook for Oracle Runtime Client (v12.2.0) installation
 # -------------------------------------------------------------------
-#
-# LICENSE: MIT
-# 
+# License: MIT
+# github.com/zicklam/ansible-oracle-client
+#  
 - name: Ansible Playbook for Oracle Runtime Client (v12.2.0) installation
   hosts: oracle
   tasks:
     - include: 'tasks/main.yml'
   vars_files:
     - 'defaults/main.yml'
+    - 'vars/main.yml'
   environment:
     #http_proxy:  http://proxy:3128
     #https_proxy: http://proxy:3128
     #no_proxy:    localhost
-    ORACLE_BASE:        "{{ oracle_base }}"
-    ORACLE_HOME:        "{{ oracle_home }}"
-    INVENTORY_LOCATION: "{{ oracle_inventory }}"
-    INSTALL_TYPE:       "{{ oracle_installation }}"
-    SELECTED_LANGUAGES: "{{ oracle_languages }}"
-    UNIX_GROUP_NAME:    "{{ oracle_group }}"
