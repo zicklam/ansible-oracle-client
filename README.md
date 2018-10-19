@@ -13,20 +13,14 @@ There aren't many requirements. Currently the scripts are only tested on followi
 
 I worked for the dependencies only with the yum_module so far. On other distributions this role may need some extension.
 
-Role Variables
---------------
-
-
 Example Playbook
 ----------------
 
 `$ ansible-playbook -i <inventory-file> site.yml`
 
-
 License
 -------
 MIT
-
 
 Author Information
 ------------------
