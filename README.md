@@ -3,8 +3,8 @@
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-zicklam.oracle_client-30677.svg?style=flat)](https://galaxy.ansible.com/zicklam/oracle_client)
 
 
-Ansible Playbook for Oracle Runtime Client (v12.2.0) installation
-=================================================================
+Ansible Playbook for Oracle Runtime Client (v12.2.0)
+====================================================
 
 Requirements
 ------------
@@ -16,20 +16,14 @@ There aren't many requirements. Currently the scripts are only tested on followi
 
 I worked for the dependencies only with the yum_module so far. On other distributions this role may need some extension.
 
-Role Variables
---------------
-
-
 Example Playbook
 ----------------
 
 `$ ansible-playbook -i <inventory-file> site.yml`
 
-
 License
 -------
 MIT
-
 
 Author Information
 ------------------
