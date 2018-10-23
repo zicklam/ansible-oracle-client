@@ -1,4 +1,7 @@
+[![License](https://img.shields.io/github/license/zicklam/ansible-oracle-client.svg?style=flat)](LICENSE)
 ![Github Downloads](https://img.shields.io/github/downloads/zicklam/ansible-oracle-client/total.svg?style=popout)
+[![Ansible Galaxy](https://img.shields.io/badge/galaxy-zicklam.oracle_client-30677.svg?style=flat)](https://galaxy.ansible.com/zicklam/oracle_client)
+
 
 Ansible Playbook for Oracle Runtime Client (v12.2.0) installation
 =================================================================
